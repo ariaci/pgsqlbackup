@@ -16,7 +16,7 @@ Script to make automatic backups of all your PostgreSQL databases based on mysql
 * It is possible to have the backup placed under a folder under the share, use the folder= parameter in the config
 * A directory under the above share/folder called pgsql (it will be created automatically if it does not exist) this is used for temporary storage of databases.
 * Directories under the above share/folder called pgsql.daily, pgsql.weekly and pgsql.monthly (they will be created automatically if they do not exist)
-* A PostgreSQL user (set in the config) that has global SELECT and global VIEWS rights, and has 'localhost' access, for security, don't use root, but create a new user, default is called backup. 
+* A PostgreSQL user (set in the config) that has 'localhost' access, for security, don't use root, but create a new user, default is called backup. 
 * The pg_dump command
 Loglevel
 It appears that not all are on page with the log function, the levels are:
@@ -31,8 +31,7 @@ The path changes if you use RAID or not, this is compensated for in the script.
 
 # The pgsqlbackup user for the script
 The script needs a valid user for accessing the PostgreSQL databases. The user for the script can be set in the configfile.
-The user needs 'localhost' access and needs global SELECT and Global SHOW VIEW rights.
-The easiest way to set this up, is via phpPgAdmin.
+The user needs 'localhost' access. The easiest way to set this up, is via phpPgAdmin.
 Place the users password in the config file.
 
 The config file is to be placed here: /etc/config/pgsqlbackup.conf
