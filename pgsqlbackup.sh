@@ -166,7 +166,7 @@ if [ -z $pgsqld_c ] ; then error "pg_dump command not found."; else info "pg_dum
 
 # Check for psql command
 for pgsqlc_p in /mnt/ext/opt/pgsql /usr/local/pgsql /mnt/HDA_ROOT/pgsql /mnt/HDB_ROOT/pgsql /mnt/HDC_ROOT/pgsql /mnt/HDD_ROOT/pgsql /mnt/HDE_ROOT/pgsql /mnt/HDF_ROOT/pgsql /mnt/HDG_ROOT/pgsql /mnt/HDH_ROOT/pgsql /share/MD0_DATA/.qpkg/Optware; do
-  [ -f $pgsqlc_p/bin/pgsql ] && pgsqlc_c="$pgsqlc_p/bin/psql"
+  [ -f $pgsqlc_p/bin/psql ] && pgsqlc_c="$pgsqlc_p/bin/psql"
 done
 if [ -z $pgsqlc_c ] ; then error "psql command not found.";  else info "psql command found" ; fi
 
