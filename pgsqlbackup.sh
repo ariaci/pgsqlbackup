@@ -171,8 +171,8 @@ done
 if [ -z $pgsqlc_c ] ; then error "psql command not found.";  else info "psql command found" ; fi
 
 # Listing all the databases individually, and dumping them
-databases=$($pgsqlc_c --dbname="postgres://$user:$pw@127.0.0.1:5432/$user" --tuples-only --command="SELECT datname FROM pg_database WHERE datistemplate=false;")
-if [ $? != 0 ] ; then error "cannot list databases, is user correct?" ; fi
+databases=$($pgsqlc_c --dbname="postgres://$user:$pw@127.0.0.1:5432/$user" --tuples-only --command="SELECT datname FROM pg_database WHERE datallowconn=true;")
+if [ $? != 0 ] ; then error "cannot list databases, is username and password correct?" ; fi
 
 # Delete old daily backups
 info "Cleaning out old backups. Keeping the last $day_ret daily backups"
