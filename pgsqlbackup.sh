@@ -159,13 +159,13 @@ if ! [ -d "$bkup_p/pgsql.weekly" ] ; then info "pgsql.weekly folder missing unde
 if ! [ -d "$bkup_p/pgsql.monthly" ] ; then info "pgsql.monthly folder missing under the share $bkup_p, it has been created" ; $md_c "$bkup_p/pgsql.monthly" ; if [ $? != 0 ] ; then error "the folder pgsql.monthly could not be created on the share $share" ; fi ; fi
 
 # Check for pg_dump command
-for pgsqld_p in /mnt/ext/opt/pgsql /usr/local/pgsql /mnt/HDA_ROOT/pgsql /mnt/HDB_ROOT/pgsql /mnt/HDC_ROOT/pgsql /mnt/HDD_ROOT/pgsql /mnt/HDE_ROOT/pgsql /mnt/HDF_ROOT/pgsql /mnt/HDG_ROOT/pgsql /mnt/HDH_ROOT/pgsql /share/MD0_DATA/.qpkg/Optware; do
+for pgsqld_p in /share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware; do
   [ -f $pgsqld_p/bin/pg_dump ] && pgsqld_c="$pgsqld_p/bin/pg_dump"
 done
 if [ -z $pgsqld_c ] ; then error "pg_dump command not found."; else info "pg_dump command found" ; fi
 
 # Check for psql command
-for pgsqlc_p in /mnt/ext/opt/pgsql /usr/local/pgsql /mnt/HDA_ROOT/pgsql /mnt/HDB_ROOT/pgsql /mnt/HDC_ROOT/pgsql /mnt/HDD_ROOT/pgsql /mnt/HDE_ROOT/pgsql /mnt/HDF_ROOT/pgsql /mnt/HDG_ROOT/pgsql /mnt/HDH_ROOT/pgsql /share/MD0_DATA/.qpkg/Optware; do
+for pgsqlc_p in /share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware; do
   [ -f $pgsqlc_p/bin/psql ] && pgsqlc_c="$pgsqlc_p/bin/psql"
 done
 if [ -z $pgsqlc_c ] ; then error "psql command not found.";  else info "psql command found" ; fi
