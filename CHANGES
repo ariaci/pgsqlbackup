@@ -1,0 +1,4 @@
+EDIT 1.0 - 27.12.2017: initial port of mysqlbackup to PostgreSQL
+EDIT 1.0 - 28.12.2017: ignore template databases while backing up
+EDIT 1.0 - 30.12.2017: ignore databases disallowing connections and include template databases while backing up
+EDIT 1.0 - 02.01.2018: changed the path looking for psql and pg_dump commands
