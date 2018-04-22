@@ -26,12 +26,17 @@ It appears that not all are on page with the log function, the levels are:
 3 Informationals are logged
 Only messages with priority of this or higher is sent to the system log.
 
-# Working on a RAID system or not?
-The path changes if you use RAID or not, this is compensated for in the script.
+# Default searchfolders for pgsql-tools?
+The path used to search for pgsql-tools can be overriden by configfile. You can list multiple search folders separated by space. If unconfigured in config the script will use the 
+following Qnap default folders for pgsql-tools: /share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware
+
+# The pgsqlbackup server and port
+You can override the server and port in configfile. If server is left unconfigured the script will use 127.0.0.1 as default. As default port the script will use 5432.
 
 # The pgsqlbackup user for the script
 The script needs a valid user for accessing the PostgreSQL databases. The user for the script can be set in the configfile.
 The user needs 'localhost' access and a default connection database. The easiest way to set this up, is via phpPgAdmin.
 Place the users password in the config file.
 
+# Location of configuration file
 The config file is to be placed here: /etc/config/pgsqlbackup.conf

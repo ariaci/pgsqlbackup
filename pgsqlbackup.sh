@@ -1,4 +1,4 @@
-# pgsqlbackup v1.0
+# pgsqlbackup v1.1
 #
 # Copyright 2017 Patrick Morgenstern (ariaci)
 #
@@ -18,7 +18,7 @@
 # on QNAP devices based on mysqlbackup of Kenneth Friebert
 #
 # Thanks to Kenneth Fribert for mysqlbackup (https://forum.qnap.com/viewtopic.php?t=15628)
-# 
+#
 
 # Read config file
 config="/etc/config/pgsqlbackup.conf"
@@ -31,7 +31,10 @@ folder=$(/sbin/getcfg pgsqlbackup folder -f $config)
 user=$(/sbin/getcfg pgsqlbackup user -f $config)
 pw=$(/sbin/getcfg pgsqlbackup pw -f $config)
 level=$(/sbin/getcfg pgsqlbackup errorlvl -f $config)
- 
+searchfolders=$(/sbin/getcfg pgsqlbackup searchfolders -f $config)
+server=$(/sbin/getcfg pgsqlbackup server -f $config)
+port=$(/sbin/getcfg pgsqlbackup port -f $config)
+
 # Standard commands used in this script
 rm_c="/bin/rm"
 tar_c="/bin/tar"
@@ -129,6 +132,10 @@ if [[ -z "$weekday_rot" ]] ; then weekday_rot="0" ; warn "weekly rotate day not 
 if [[ -z "$share" ]] ; then share="Backup" ; warn "share for storing Backup not set in config, setting to Backup" ; fi
 if [[ -z "$user" ]] ; then user="User" ; warn "PostgreSQL user for backup not set in config, setting to User" ; fi
 if [[ -z "$pw" ]] ; then pw="Password" ; warn "PostgreSQL password for backup not set in config, setting to Password" ; fi
+if [[ -z "$searchfolders" ]] ; then searchfolders="/share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware" ; info "PostgreSQL searchfolders for backup not set in config, setting 
+to default for Qnap" ; fi
+if [[ -z "$server" ]] ; then server="127.0.0.1" ; info "PostgreSQL server for backup not set in config, setting to 127.0.0.1" ; fi
+if [[ -z "$port" ]] ; then port="5432" ; info "PostgreSQL server port for backup not set in config, setting to 5432" ; fi
 
 # Check for backup share
 bkup_p=$($get_c "$share" path -f /etc/config/smb.conf)
@@ -159,20 +166,20 @@ if ! [ -d "$bkup_p/pgsql.weekly" ] ; then info "pgsql.weekly folder missing unde
 if ! [ -d "$bkup_p/pgsql.monthly" ] ; then info "pgsql.monthly folder missing under the share $bkup_p, it has been created" ; $md_c "$bkup_p/pgsql.monthly" ; if [ $? != 0 ] ; then error "the folder pgsql.monthly could not be created on the share $share" ; fi ; fi
 
 # Check for pg_dump command
-for pgsqld_p in /share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware; do
+for pgsqld_p in $searchfolders; do
   [ -f $pgsqld_p/bin/pg_dump ] && pgsqld_c="$pgsqld_p/bin/pg_dump"
 done
 if [ -z $pgsqld_c ] ; then error "pg_dump command not found."; else info "pg_dump command found" ; fi
 
 # Check for psql command
-for pgsqlc_p in /share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware; do
+for pgsqlc_p in $searchfolders; do
   [ -f $pgsqlc_p/bin/psql ] && pgsqlc_c="$pgsqlc_p/bin/psql"
 done
 if [ -z $pgsqlc_c ] ; then error "psql command not found.";  else info "psql command found" ; fi
 
 # Listing all the databases individually, and dumping them
-databases=$($pgsqlc_c --dbname="postgres://$user:$pw@127.0.0.1:5432/$user" --tuples-only --command="SELECT datname FROM pg_database WHERE datallowconn=true;")
-if [ $? != 0 ] ; then error "cannot list databases, is username and password correct?" ; fi
+databases=$($pgsqlc_c --dbname="postgres://$user:$pw@$server:$port/$user" --tuples-only --command="SELECT datname FROM pg_database WHERE datallowconn=true;")
+if [ $? != 0 ] ; then error "cannot list databases, is server, port, username and password correct?" ; fi
 
 # Delete old daily backups
 info "Cleaning out old backups. Keeping the last $day_ret daily backups"
@@ -197,7 +204,7 @@ while read line
 do
   set $line
   $ec_c -e "Backing up database $line"
-  $pgsqld_c --dbname="postgresql://$user:$pw@127.0.0.1:5432/$line" --blobs --create --format=p --file="$bkup_p/pgsql/$line.sql"
+  $pgsqld_c --dbname="postgresql://$user:$pw@$server:$port/$line" --blobs --create --format=p --file="$bkup_p/pgsql/$line.sql"
   if [ $? != 0 ]; then error "creating new backup when trying to access the database $line" ; error=error ; fi
 done<<<"$databases"
 
