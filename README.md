@@ -40,3 +40,4 @@ Place the users password in the config file.
 
 # Location of configuration file
 The config file is to be placed here: /etc/config/pgsqlbackup.conf
+Alternatively, the configuration file to be used can also be passed to the script as the first parameter.

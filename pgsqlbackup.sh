@@ -20,21 +20,6 @@
 # Thanks to Kenneth Fribert for mysqlbackup (https://forum.qnap.com/viewtopic.php?t=15628)
 #
 
-# Read config file
-config="/etc/config/pgsqlbackup.conf"
-day_ret=$(/sbin/getcfg pgsqlbackup day_retention -f $config)
-week_ret=$(/sbin/getcfg pgsqlbackup week_retention -f $config)
-month_ret=$(/sbin/getcfg pgsqlbackup month_retention -f $config)
-weekday_rot=$(/sbin/getcfg pgsqlbackup day_rotate -f $config)
-share=$(/sbin/getcfg pgsqlbackup share -f $config)
-folder=$(/sbin/getcfg pgsqlbackup folder -f $config)
-user=$(/sbin/getcfg pgsqlbackup user -f $config)
-pw=$(/sbin/getcfg pgsqlbackup pw -f $config)
-level=$(/sbin/getcfg pgsqlbackup errorlvl -f $config)
-searchfolders=$(/sbin/getcfg pgsqlbackup searchfolders -f $config)
-server=$(/sbin/getcfg pgsqlbackup server -f $config)
-port=$(/sbin/getcfg pgsqlbackup port -f $config)
-
 # Standard commands used in this script
 rm_c="/bin/rm"
 tar_c="/bin/tar"
@@ -45,6 +30,29 @@ log_c="/sbin/write_log"
 md_c="/bin/mkdir"
 ls_c="/bin/ls"
 date_c="/bin/date"
+
+# Check config file to use
+if [[ -z "$1" ]] ; then config="/etc/config/pgsqlbackup.conf" ; else config=$1 ; fi
+if [ ! -e "$config" ] ; then
+   $ec_c -e "PostgreSQL Backup: ERROR: configuration file not found"
+   $log_c "PostgreSQL Backup: ERROR configuration file not found" 1
+   exit 1
+fi
+
+# Read config file
+day_ret=$(/sbin/getcfg pgsqlbackup day_retention -f "$config")
+week_ret=$(/sbin/getcfg pgsqlbackup week_retention -f "$config")
+month_ret=$(/sbin/getcfg pgsqlbackup month_retention -f "$config")
+weekday_rot=$(/sbin/getcfg pgsqlbackup day_rotate -f "$config")
+share=$(/sbin/getcfg pgsqlbackup share -f "$config")
+sharetype=$(/sbin/getcfg pgsqlbackup sharetype -f "$config")
+folder=$(/sbin/getcfg pgsqlbackup folder -f "$config")
+user=$(/sbin/getcfg pgsqlbackup user -f "$config")
+pw=$(/sbin/getcfg pgsqlbackup pw -f "$config")
+level=$(/sbin/getcfg pgsqlbackup errorlvl -f "$config")
+searchfolders=$(/sbin/getcfg pgsqlbackup searchfolders -f "$config")
+server=$(/sbin/getcfg pgsqlbackup server -f "$config")
+port=$(/sbin/getcfg pgsqlbackup port -f "$config")
 
 # Internal variable setup
 arc=$($date_c +%y%m%d).tar.gz
@@ -129,7 +137,8 @@ if [[ -z "$day_ret" ]] ; then day_ret="6" ; warn "days to keep backup not set in
 if [[ -z "$week_ret" ]] ; then week_ret="5" ; warn "weeks to keep backup not set in config, setting to 5" ; fi
 if [[ -z "$month_ret" ]] ; then month_ret="3" ; warn "months to keep backup not set in config, setting to 3" ; fi
 if [[ -z "$weekday_rot" ]] ; then weekday_rot="0" ; warn "weekly rotate day not set in config, setting to sunday" ; fi
-if [[ -z "$share" ]] ; then share="Backup" ; warn "share for storing Backup not set in config, setting to Backup" ; fi
+if [[ -z "$share" ]] ; then share="Backup" ; warn "share for storing backup not set in config, setting to Backup" ; fi
+if [[ -z "$sharetype" ]] ; then sharetype="smb:qnap" ; info "sharetype for storing backup not set in config, setting to smb:qnap" ; fi
 if [[ -z "$user" ]] ; then user="User" ; warn "PostgreSQL user for backup not set in config, setting to User" ; fi
 if [[ -z "$pw" ]] ; then pw="Password" ; warn "PostgreSQL password for backup not set in config, setting to Password" ; fi
 if [[ -z "$searchfolders" ]] ; then searchfolders="/share/CACHEDEV1_DATA/.qpkg/PostgreSQL /share/CACHEDEV1_DATA/.qpkg/Optware" ; info "PostgreSQL searchfolders for backup not set in config, setting 
@@ -137,9 +146,20 @@ to default for Qnap" ; fi
 if [[ -z "$server" ]] ; then server="127.0.0.1" ; info "PostgreSQL server for backup not set in config, setting to 127.0.0.1" ; fi
 if [[ -z "$port" ]] ; then port="5432" ; info "PostgreSQL server port for backup not set in config, setting to 5432" ; fi
 
-# Check for backup share
-bkup_p=$($get_c "$share" path -f /etc/config/smb.conf)
-if [ $? != 0 ] ; then error "the share $share is not found, remember that the destination has to be a share" ; else info "Backup share found" ; fi
+# Check for backup share using sharetype
+case $(tr '[:upper:]' '[:lower:]' <<<"$sharetype") in
+   "smb:qnap")
+      bkup_p=$($get_c "$share" path -f /etc/config/smb.conf)
+      if [ $? != 0 ] ; then error "the share $share is not found, remember that the destination has to be a share" ; else info "Backup smb share found" ; fi
+      ;;
+   "filesystem")
+      bkup_p=$share
+      if [ ! -d "$bkup_p" ] ; then error "the share $share is not found in filesystem" ; else info "Backup filesystem share found" ; fi
+      ;;
+   *)
+      error "the sharetype $sharetype is unknown, supported types are smb:qnap or filesystem"
+      ;;
+esac
 
 # Add subfolder to backup share
 if [[ -z "$folder" ]] ; then
