@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # pgsqlbackup v1.1
 #
 # Copyright 2017 Patrick Morgenstern (ariaci)
@@ -23,7 +25,6 @@
 # Standard commands used in this script
 rm_c="/bin/rm"
 tar_c="/bin/tar"
-awk_c="/bin/awk"
 get_c="/sbin/getcfg"
 ec_c="/bin/echo"
 log_c="/sbin/write_log"
@@ -31,28 +32,33 @@ md_c="/bin/mkdir"
 ls_c="/bin/ls"
 date_c="/bin/date"
 
+if [ ! -e "$get_c" ] ; then get_c="$(dirname "$0")/pgsqlbackup_getcfg.sh" ; fi
+
 # Check config file to use
 if [[ -z "$1" ]] ; then config="/etc/config/pgsqlbackup.conf" ; else config=$1 ; fi
 if [ ! -e "$config" ] ; then
    $ec_c -e "PostgreSQL Backup: ERROR: configuration file not found"
-   $log_c "PostgreSQL Backup: ERROR configuration file not found" 1
+   if [ -e "$log_c" ] ; then $log_c "PostgreSQL Backup: ERROR configuration file not found" 1 ; fi
    exit 1
 fi
 
 # Read config file
-day_ret=$(/sbin/getcfg pgsqlbackup day_retention -f "$config")
-week_ret=$(/sbin/getcfg pgsqlbackup week_retention -f "$config")
-month_ret=$(/sbin/getcfg pgsqlbackup month_retention -f "$config")
-weekday_rot=$(/sbin/getcfg pgsqlbackup day_rotate -f "$config")
-share=$(/sbin/getcfg pgsqlbackup share -f "$config")
-sharetype=$(/sbin/getcfg pgsqlbackup sharetype -f "$config")
-folder=$(/sbin/getcfg pgsqlbackup folder -f "$config")
-user=$(/sbin/getcfg pgsqlbackup user -f "$config")
-pw=$(/sbin/getcfg pgsqlbackup pw -f "$config")
-level=$(/sbin/getcfg pgsqlbackup errorlvl -f "$config")
-searchfolders=$(/sbin/getcfg pgsqlbackup searchfolders -f "$config")
-server=$(/sbin/getcfg pgsqlbackup server -f "$config")
-port=$(/sbin/getcfg pgsqlbackup port -f "$config")
+day_ret=$($get_c pgsqlbackup day_retention -f "$config")
+week_ret=$($get_c pgsqlbackup week_retention -f "$config")
+month_ret=$($get_c pgsqlbackup month_retention -f "$config")
+weekday_rot=$($get_c pgsqlbackup day_rotate -f "$config")
+share=$($get_c pgsqlbackup share -f "$config")
+sharetype=$($get_c pgsqlbackup sharetype -f "$config")
+folder=$($get_c pgsqlbackup folder -f "$config")
+user=$($get_c pgsqlbackup user -f "$config")
+pw=$($get_c pgsqlbackup pw -f "$config")
+level=$($get_c pgsqlbackup errorlvl -f "$config")
+searchfolders=$($get_c pgsqlbackup searchfolders -f "$config")
+server=$($get_c pgsqlbackup server -f "$config")
+port=$($get_c pgsqlbackup port -f "$config")
+
+# If logger command isn't available set loglevel=0 to supress logging
+if [ ! -e "$log_c" ] ; then level=0 ; fi
 
 # Internal variable setup
 arc=$($date_c +%y%m%d).tar.gz
@@ -69,14 +75,27 @@ bkup_p=
 
 # Error and logging functions
 
-function error ()
-{ $ec_c -e "PostgreSQL Backup: ERROR: $1" ; if test "$level" -gt 0 ; then $log_c "PostgreSQL Backup: ERROR $1" 1 ; fi ; exit 1 ; }
+function error () {
+   $ec_c -e "PostgreSQL Backup: ERROR: $1"
+   if test "$level" -gt 0 ; then
+      $log_c "PostgreSQL Backup: ERROR $1" 1
+   fi
+   exit 1
+}
 
-function warn ()
-{ $ec_c -e "PostgreSQL Backup: WARNING: $1" ; if test "$level" -gt 1 ; then $log_c "PostgreSQL Backup: WARNING $1" 2 ; fi ;  }
+function warn () {
+   $ec_c -e "PostgreSQL Backup: WARNING: $1"
+   if test "$level" -gt 1 ; then
+      $log_c "PostgreSQL Backup: WARNING $1" 2
+   fi
+}
 
-function info ()
-{ $ec_c -e "PostgreSQL Backup: INFO: $1" ; if test "$level" -gt 2 ; then $log_c "PostgreSQL Backup: INFO $1" 4 ; fi ; } 
+function info () {
+   $ec_c -e "PostgreSQL Backup: INFO: $1"
+   if test "$level" -gt 2 ; then
+      $log_c "PostgreSQL Backup: INFO $1" 4
+   fi
+}
 
 # Functions for handling PID file
 

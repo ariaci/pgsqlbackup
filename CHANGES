@@ -4,3 +4,4 @@ EDIT 1.0 - 30.12.2017: ignore databases disallowing connections and include temp
 EDIT 1.0 - 02.01.2018: changed the path looking for psql and pg_dump commands
 EDIT 1.1 - 22.04.2018: added server-, port- and searchfolders-configuration in configfile, added example with default values for configfile
 EDIT 1.1 - 23.04.2018: added possibility to specify sharetype (smb:qnap or filesystem), configuration file to use can be passed as first parameter to script
+EDIT 1.1 - 27.04.2018: added simple "emulation" getcfg command to support non-Qnap-systems and supress logging if /sbin/write_log-command isn't available 
