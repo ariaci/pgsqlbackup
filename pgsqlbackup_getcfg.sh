@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Part of pgsqlbackup v1.1
+# Part of pgsqlbackup v1.2
 #
 # Copyright 2018 Patrick Morgenstern (ariaci)
 #
@@ -20,4 +20,4 @@
 # This script only emulates the system-internal getcfg-command of Qnap devices
 #
 
-/bin/sed -nr "/^\[$1\]/I { :l /^$2[ ]*=/I { s/.*=[ ]*//; p; q;}; n; b l;}" "$4"
+/bin/sed -nr "/^\[$1\]/I { :l /^$2[ ]*=/I { s/.*=[ ]*//; p; q;}; n; b l;}" "$4" | tr -d "\r"

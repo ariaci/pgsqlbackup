@@ -6,3 +6,4 @@ EDIT 1.1 - 22.04.2018: added server-, port- and searchfolders-configuration in c
 EDIT 1.1 - 23.04.2018: added possibility to specify sharetype (smb:qnap or filesystem), configuration file to use can be passed as first parameter to script
 EDIT 1.1 - 27.04.2018: added simple "emulation" getcfg command to support non-Qnap-systems and supress logging if /sbin/write_log-command isn't available 
 EDIT 1.1 - 28.04.2018: added some scripts to interact with docker infrastructure (create pgsqlbackup-image, execute pgsqlbackup-image)
+EDIT 1.2 - 29.04.2018: resolved bug in getcfg-replacement script with DOS-formatted-config-files (script handles "\r" correctly now) 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Part of pgsqlbackup v1.1
+# Part of pgsqlbackup v1.2
 #
 # Copyright 2018 Patrick Morgenstern (ariaci)
 #
