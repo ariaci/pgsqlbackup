@@ -19,4 +19,4 @@
 # Script to initiate backup of postgres-databases using pgsqlbackup-docker image
 #
 
-docker run -t -v=$1:/var/lib/postgresql/backup:rw --link=$2:pgsqlsrv --rm $3
+docker run -t --network=db-net -v=$1:/var/lib/postgresql/backup:rw --rm $3

@@ -37,9 +37,9 @@ cp "$2" ./tmp/pgsqlbackup.conf
 
 echo "share=/var/lib/postgresql/backup" >>./tmp/pgsqlbackup.conf
 echo "sharetype=filesystem" >>./tmp/pgsqlbackup.conf
-echo "server=pgsqlsrv" >>./tmp/pgsqlbackup.conf
+echo "server=pgsql" >>./tmp/pgsqlbackup.conf
 echo "searchfolders=/usr" >>./tmp/pgsqlbackup.conf
 
-docker build -t "$1" .
+docker build --rm --force-rm -t "$1" .
 
 rm -rf ./tmp

@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres:16
 
 COPY tmp/pgsqlbackup.sh /sbin/pgsqlbackup.sh
 COPY tmp/pgsqlbackup_getcfg.sh /sbin/getcfg
